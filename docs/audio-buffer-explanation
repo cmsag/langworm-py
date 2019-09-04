@@ -1,0 +1,57 @@
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Basic_concepts_behind_Web_Audio_API#Audio_buffers_frames_samples_and_channels
+
+Audio buffers: frames, samples and channels
+Section
+
+An AudioBuffer takes as its parameters a number of channels (1 for mono, 2 for stereo, etc), a length, meaning the number of sample frames inside the buffer, and a sample rate, which is the number of sample frames played per second.
+
+A sample is a single float32 value that represents the value of the audio stream at each specific point in time, in a specific channel (left or right, if in the case of stereo). A frame, or sample frame, is the set of all values for all channels that will play at a specific point in time: all the samples of all the channels that play at the same time (two for a stereo sound, six for 5.1, etc.)
+
+The sample rate is the number of those samples (or frames, since all samples of a frame play at the same time) that will play in one second, measured in Hz. The higher the sample rate, the better the sound quality.
+
+Let's look at a Mono and a Stereo audio buffer, each is one second long, and playing at 44100Hz:
+
+    The Mono buffer will have 44100 samples, and 44100 frames. The length property will be 44100.
+    The Stereo buffer will have 88200 samples, but still 44100 frames. The length property will still be 44100 since it's equal to the number of frames.
+
+A diagram showing several frames in an audio buffer in a long line, each one containing two samples, as the buffer has two channels, it is stereo.
+
+When a buffer plays, you will hear the left most sample frame, and then the one right next to it, etc. In the case of stereo, you will hear both channels at the same time. Sample frames are very useful, because they are independent of the number of channels, and represent time, in a useful way for doing precise audio manipulation.
+
+Note: To get a time in seconds from a frame count, simply divide the number of frames by the sample rate. To get a number of frames from a number of samples, simply divide by the channel count.
+
+Here's a couple of simple examples:
+
+var context = new AudioContext();
+var buffer = context.createBuffer(2, 22050, 44100);
+
+Note: In digital audio, 44,100 Hz (alternately represented as 44.1 kHz) is a common sampling frequency. Why 44.1kHz?
+
+Firstly, because the hearing range of human ears is roughly 20 Hz to 20,000 Hz. Via the Nyquist–Shannon sampling theorem, the sampling frequency must be greater than twice the maximum frequency one wishes to reproduce. Therefore, the sampling rate has to be greater than 40 kHz.
+
+Secondly, signals must be low-pass filtered before sampling, otherwise aliasing occurs. While an ideal low-pass filter would perfectly pass frequencies below 20 kHz (without attenuating them) and perfectly cut off frequencies above 20 kHz, in practice a transition band is necessary, where frequencies are partly attenuated. The wider this transition band is, the easier and more economical it is to make an anti-aliasing filter. The 44.1 kHz sampling frequency allows for a 2.05 kHz transition band.
+
+If you use this call above, you will get a stereo buffer with two channels, that when played back on an AudioContext running at 44100Hz (very common, most normal sound cards run at this rate), will last for 0.5 seconds: 22050 frames/44100Hz = 0.5 seconds.
+
+var context = new AudioContext();
+var buffer = context.createBuffer(1, 22050, 22050);
+
+If you use this call, you will get a mono buffer with just one channel), that when played back on an AudioContext running at 44100Hz, will be automatically resampled to 44100Hz (and therefore yield 44100 frames), and last for 1.0 second: 44100 frames/44100Hz = 1 second.
+
+Note: audio resampling is very similar to image resizing. Say you've got a 16 x 16 image, but you want it to fill a 32x32 area. You resize (or resample) it. The result has less quality (it can be blurry or edgy, depending on the resizing algorithm), but it works, with the resized image taking up less space. Resampled audio is exactly the same: you save space, but in practice you will be unable to properly reproduce high frequency content, or treble sound.
+Planar versus interleaved buffers
+Section
+
+The Web Audio API uses a planar buffer format. The left and right channels are stored like this:
+
+LLLLLLLLLLLLLLLLRRRRRRRRRRRRRRRR (for a buffer of 16 frames)
+
+This is very common in audio processing: it makes it easy to process each channel independently.
+
+The alternative is to use an interleaved buffer format:
+
+LRLRLRLRLRLRLRLRLRLRLRLRLRLRLRLR (for a buffer of 16 frames)
+
+This format is very common for storing and playing back audio without much processing, for example a decoded MP3 stream.
+
+The Web Audio API exposes only planar buffers, because it's made for processing. It works with planar, but converts the audio to interleaved when it is sent to the sound card for playback. Conversely, when an MP3 is decoded, it starts off in interleaved format, but is converted to planar for processing.
