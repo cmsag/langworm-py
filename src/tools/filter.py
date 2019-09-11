@@ -28,9 +28,8 @@ class BPBiquadFilter:
     def __init__(self, centre_frequency, sample_rate):
 
         dBgain = 20
-        self.sample_rate = sample_rate
         Q = 0.5
-
+        self.sample_rate = sample_rate
         self.centre_frequency = centre_frequency
 
         absolute_gain = 10**(dBgain / 40)

@@ -1,10 +1,14 @@
 from pyaudio import PyAudio
 import random
+import src.tools.filter as fl
 
 block_length = 512
 block_time = 1
 started = False
 sound_on = False
+
+# Default sample rate just above 44 KHz
+default_sr = 44100
 
 
 class SoundSystem:
@@ -19,6 +23,12 @@ class SoundSystem:
         # default = create 2 seconds of noise
         duration = 2
         white_noise = self.create_white_noise_node(duration * self.sample_rate)
+
+        aspirate_filter = fl.BPBiquadFilter(centre_frequency=500,
+                                            sample_rate=default_sr)
+
+        fricative_filter = fl.BPBiquadFilter(centre_frequency=1000,
+                                             sample_rate=default_sr)
 
         # ...
         # Function WiP
@@ -36,19 +46,18 @@ class SoundSystem:
                            frames_per_buffer=frame_count,
                            rate=self.sample_rate)
 
-        now_buffering = my_stream.read(0)
+        now_buffering = my_stream.read(1)
         i = 0
         while i < frame_count:
             i += 1
             now_buffering[i] = random.randint()
 
-        return my_stream
-        # Development of this feature on hold - see https://github.com/cmsag/langworm-py/issues/1
+        source = PyAudio().open(output=True,
+                                )
+        source.buffer = my_stream
+        source.loop = True
 
-        # An alternative method for real-time audio processing might be better
-        # https://staff.fnwi.uva.nl/r.vandenboomgaard/SP20162017/Python/Audio/realtimeaudio.html
-
-
+        return source
         # For this we need to get the equivalent of an audio buffer source node
         # https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
 
