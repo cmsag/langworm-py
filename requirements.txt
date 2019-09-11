@@ -1,2 +1,4 @@
 numpy
 opensimplex
+# For pyaudio, a portaudio install is also required
+pyaudio

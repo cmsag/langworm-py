@@ -43,6 +43,12 @@ class SoundSystem:
             now_buffering[i] = random.randint()
 
         return my_stream
+        # Development of this feature on hold - see https://github.com/cmsag/langworm-py/issues/1
+
+        # An alternative method for real-time audio processing might be better
+        # https://staff.fnwi.uva.nl/r.vandenboomgaard/SP20162017/Python/Audio/realtimeaudio.html
+
+
         # For this we need to get the equivalent of an audio buffer source node
         # https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
 
