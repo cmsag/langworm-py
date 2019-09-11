@@ -1,4 +1,4 @@
-from pyaudio import PyAudio as pa
+from pyaudio import PyAudio
 import random
 
 block_length = 512
@@ -30,25 +30,22 @@ class SoundSystem:
         # https://people.csail.mit.edu/hubert/pyaudio/docs/#class-stream
         # Not sure if it will work...
         # May be input or output. Putting output for now.
-        my_array_buffer = pa.open(output=True, channels=1, frames_per_buffer=frame_count, rate=self.sample_rate)
+        input_node = PyAudio()
+        my_stream = input_node.open(input=True,
+                           channels=1,
+                           frames_per_buffer=frame_count,
+                           rate=self.sample_rate)
 
-        now_buffering = my_array_buffer.read(1)
+        now_buffering = my_stream.read(0)
         i = 0
         while i < frame_count:
             i += 1
             now_buffering[i] = random.randint()
 
-        source =
+        return my_stream
         # For this we need to get the equivalent of an audio buffer source node
         # https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
 
         # ...
         # Function WiP
         # ...
-
-    def create_white_noise_node(self):
-        pass
-
-    # ...
-    # Function WiP
-    # ...
