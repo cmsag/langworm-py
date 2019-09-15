@@ -4,6 +4,8 @@
 
 from pyaudio import PyAudio, paFloat32
 import numpy as np
+from scipy import signal
+from scipy.signal import butter, lfilter
 import random
 import math
 
@@ -12,6 +14,7 @@ class BPBiquadFilter:
     def __init__(self, centre_frequency, sample_rate):
 
         dBgain = 20
+        # Q = Quality factor
         Q = 0.5
         self.sample_rate = sample_rate
         self.centre_frequency = centre_frequency
@@ -36,10 +39,10 @@ class BPBiquadFilter:
 
 bp = BPBiquadFilter(centre_frequency=300,sample_rate=44100)
 
-samples = np.array([bp.b0,bp.b1,bp.b2,bp.a0,bp.a1,bp.a2])
+# samples = np.array([bp.b0,bp.b1,bp.b2,bp.a0,bp.a1,bp.a2])
 
-volume = 0.5
-#samples = (np.sin(2*np.pi*np.arange(44100*1)*440/44100)).astype(np.float32)
+volume = 0.2
+samples = (np.sin(2*np.pi*np.arange(44100*1)*440/44100)).astype(np.float32)
 print(type(samples))
 
 pa = PyAudio()
@@ -52,7 +55,7 @@ my_stream = pa.open(format=paFloat32,
                     output=True)
 
 while True:
-    play(volume*samples)
+    my_stream.write(volume*samples)
 
 my_stream.stop_stream()
 my_stream.close()
